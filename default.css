@@ -22,3 +22,18 @@ ul {
   float: left;
   font-size: .875em;
 }
+
+path {
+  fill: transparent;
+  stroke: black;
+  stroke-width: .5px;
+}
+
+g.neighborhoods path {
+  fill: #ddd;
+}
+
+g.arteries path {
+  stroke: blue;
+  stroke-width: 1px;
+}

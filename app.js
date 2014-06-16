@@ -1,33 +1,43 @@
-var width = 600,
+var width = 700,
     height = 600;
 
 var svg = d3.select("#map").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-d3.json('sfmaps/neighborhoods.json', function(error, sf) {
-  if (error) {
-    return console.error(error);
+var draw = function(name) {
+  d3.json('sfmaps/' + name + '.json', function(error, sf) {
+    if (error) {
+      return console.error(error);
+    }
+
+    var projection = d3.geo.albers()
+        .scale([250000])
+        .translate([width/2 + 87100,height/2 + 8320]);
+
+    var path = d3.geo.path()
+        .projection(projection);
+
+    svg.append("g").classed(name, true);
+
+    d3.select('.' + name).selectAll("path")
+        .data(sf.features)
+        .enter()
+        .append("path")
+        .attr("d", path);
+  });
+};
+
+(function() {
+  dset = ['neighborhoods', 'streets', 'arteries'];
+  for (var i = 0; i < dset.length; i++) {
+    draw(dset[i]);
   }
-
-  var projection = d3.geo.albers()
-      .scale([200000])
-      .translate([width/2 + 69700,height/2 + 6650]);
-
-  var path = d3.geo.path()
-      .projection(projection);
-
-  svg.selectAll("path")
-      .data(sf.features)
-      .enter()
-      .append("path")
-      .attr("d", path);
-});
+})();
 
 $.ajax('http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=sf-muni&r=N&t=1144953500233', {
   success: function(data) {
     console.log(data);
-    // console.log(data.documentElement.children);
   }
 });
 
