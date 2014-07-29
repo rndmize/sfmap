@@ -34,6 +34,15 @@ g.neighborhoods path {
 }
 
 g.arteries path {
-  stroke: blue;
-  stroke-width: 1px;
+  /*stroke: blue;*/
+  /*stroke-width: 1px;*/
+}
+
+g.n path {
+  stroke: red;
+  opacity: .5;
+}
+
+g.n path:hover {
+  opacity: 1;
 }

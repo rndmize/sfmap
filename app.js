@@ -13,7 +13,7 @@ var draw = function(name) {
 
     var projection = d3.geo.albers()
         .scale([250000])
-        .translate([width/2 + 87100,height/2 + 8320]);
+        .translate([87450, 8620]);
 
     var path = d3.geo.path()
         .projection(projection);
@@ -29,17 +29,11 @@ var draw = function(name) {
 };
 
 (function() {
-  dset = ['neighborhoods', 'streets', 'arteries'];
+  dset = ['neighborhoods', 'arteries', 'streets'];
   for (var i = 0; i < dset.length; i++) {
     draw(dset[i]);
   }
 })();
-
-$.ajax('http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=sf-muni&r=N&t=1144953500233', {
-  success: function(data) {
-    console.log(data);
-  }
-});
 
 $.ajax('http://webservices.nextbus.com/service/publicXMLFeed?command=routeList&a=sf-muni', {
   success: function(data) {
@@ -54,3 +48,52 @@ $.ajax('http://webservices.nextbus.com/service/publicXMLFeed?command=routeList&a
     }
   }
 });
+
+$.ajax('http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni', {
+  success: function(data) {
+    var geoRouteFeatures = [];
+    for (var r = 0; r < data.documentElement.children.length; r++) {
+      var route = data.documentElement.children[r];
+      console.log(route.children);
+      for (var i = 0; i < route.children.length; i++) {
+        var routePoints = [];
+        if (route.children[i].nodeName === 'path') {
+          for (var j = 0; j < route.children[i].children.length; j++) {
+            routePoints.push([route.children[i].children[j].getAttribute('lon'), route.children[i].children[j].getAttribute('lat'), 0.0]);
+          }
+          geoRouteFeatures.push({
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": routePoints
+            }
+          });
+        }
+      }
+    }
+
+    var projection = d3.geo.albers()
+        .scale([250000])
+        .translate([87450, 8620]);
+
+    var path = d3.geo.path()
+        .projection(projection);
+
+    svg.append("g").classed('n', true);
+
+    d3.select('.n').selectAll("path")
+        .data(geoRouteFeatures)
+        .enter()
+        .append("path")
+        .attr("d", path);
+  }
+});
+
+$('#routes').on('mouseenter', 'li', function() {
+  console.log(this);
+});
+
+
+
+
+
